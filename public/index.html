@@ -1,26 +1,28 @@
 <!doctype html>
 <html lang="ru">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>TokMaker — помощь рядом</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
   <header class="site-header">
-    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;">
-      <div style="flex: 1;"></div>
-      <div style="text-align: center; flex: 1;">
+    <div class="header-container">
+      <div class="header-brand">
         <h1>TokMaker</h1>
-        <h2>Платформа для соединения работодателей и студентов-исполнителей</h2>
+        <p class="header-tagline">Социальная платформа Enactus МУЦА</p>
       </div>
-      <div style="flex: 1; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
-        <span id="userName" style="font-size: 12px; color: white;"></span>
-        <button onclick="location.href='/dashboard.html'" class="btn primary" style="margin: 0; font-size: 12px; padding: 8px 16px;">
-          Личный кабинет
+      <div class="header-actions">
+        <span id="userName" class="user-name"></span>
+        <button onclick="location.href='/dashboard.html'" class="icon-btn" title="Личный кабинет">
+          <i class="fas fa-user"></i>
         </button>
-        <button onclick="logout()" class="btn secondary" style="margin: 0; font-size: 12px; padding: 8px 16px;">
-          Выход
+        <button onclick="logout()" class="icon-btn logout-btn" title="Выход">
+          <i class="fas fa-sign-out-alt"></i>
         </button>
       </div>
     </div>
@@ -31,7 +33,7 @@
       <div class="buttons">
         <button onclick="location.href='/employer.html'" class="btn primary">Для работодателя</button>
         <button onclick="location.href='/vacancies.html'" class="btn primary">Список вакансий</button>
-        <button onclick="location.href='/admin.html'" class="btn accent">Админ-панель</button>
+        <!-- <button onclick="location.href='/admin.html'" class="btn accent">Админ-панель</button> -->
       </div>
     </section>
     <section>
@@ -44,7 +46,37 @@
     </section>
   </main>
 
-  <footer class="site-footer">© TokMaker — MVP</footer>
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-column">
+        <h3>TokMaker</h3>
+        <p>Это социальная платформа, созданная командой Enactus МУЦА. Наша цель — помочь жителям города Токмок справляться с бытовыми и семейными задачами.</p>
+      </div>
+      <div class="footer-column">
+        <h3>Контакты</h3>
+        <ul class="footer-links">
+          <li><i class="fa-solid fa-location-dot"></i> г. Токмок, ул. Сарыбагышева 1</li>
+          <li><i class="fa-solid fa-envelope"></i> enactus@iuca.kg</li>
+          <li><i class="fa-solid fa-phone"></i> +996 (XXX) XX-XX-XX</li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Поддержка</h3>
+        <div class="social-links">
+          <a href="https://wa.me/996700399535" target="_blank" class="social-btn whatsapp">
+            <i class="fa-brands fa-whatsapp"></i> Написать в WhatsApp
+          </a>
+          <a href="https://instagram.com/enactus_iuca" target="_blank" class="social-btn instagram">
+            <i class="fa-brands fa-instagram"></i> Instagram
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2024 TokMaker — MVP. Все права защищены.
+    </div>
+  </footer>
+
 
   <script>
     // Проверка авторизации
@@ -69,4 +101,7 @@
     }
   </script>
 </body>
+
+
+
 </html>

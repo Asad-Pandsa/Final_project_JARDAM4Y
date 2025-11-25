@@ -7,7 +7,7 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_KEY = process.env.ADMIN_KEY || '123';
+const ADMIN_KEY = '123123'; // process.env.ADMIN_KEY || '123123';
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -23,6 +23,7 @@ app.post('/api/applications', async (req, res) => {
     const id = await db.createApplication({
       name: data.name || '',
       contact: data.contact || '',
+      address: data.address || '',
       category: data.category || '',
       otherCategoryText: data.otherCategoryText || '',
       description: data.description || '',
@@ -78,8 +79,8 @@ app.get('/api/admin/export', async (req, res) => {
   if (!key || key !== ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const rows = await db.getAllApplications();
-    const header = 'id,name,contact,category,otherCategoryText,description,datetime,price,created_at\n';
-    const csv = rows.map(r => [r.id, escapeCsv(r.name), escapeCsv(r.contact), escapeCsv(r.category), escapeCsv(r.otherCategoryText), escapeCsv(r.description), escapeCsv(r.datetime), escapeCsv(r.price), r.created_at].join(',')).join('\n');
+    const header = 'id,name,contact,address,category,otherCategoryText,description,datetime,price,created_at\n';
+    const csv = rows.map(r => [r.id, escapeCsv(r.name), escapeCsv(r.contact), escapeCsv(r.address), escapeCsv(r.category), escapeCsv(r.otherCategoryText), escapeCsv(r.description), escapeCsv(r.datetime), escapeCsv(r.price), r.created_at].join(',')).join('\n');
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="tokmaker_applications.csv"');
     res.send(header + csv);
@@ -131,7 +132,7 @@ app.delete('/api/applications/:id', async (req, res) => {
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    
+
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, error: 'Missing fields' });
     }
@@ -143,13 +144,13 @@ app.post('/api/auth/register', async (req, res) => {
 
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
     const userId = await db.createUser({ name, email, password: hashedPassword });
-    
+
     const token = crypto.randomBytes(32).toString('hex');
     await db.createSession(userId, token);
 
     console.log('User registered:', email);
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       token,
       user: { id: userId, name, email }
     });
@@ -163,7 +164,7 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       return res.status(400).json({ success: false, error: 'Missing fields' });
     }
@@ -182,8 +183,8 @@ app.post('/api/auth/login', async (req, res) => {
     await db.createSession(user.id, token);
 
     console.log('User logged in:', email);
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       token,
       user: { id: user.id, name: user.name, email: user.email }
     });

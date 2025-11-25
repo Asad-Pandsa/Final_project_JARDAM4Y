@@ -13,6 +13,7 @@ exports.init = () => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       contact TEXT NOT NULL,
+      address TEXT,
       category TEXT,
       otherCategoryText TEXT,
       description TEXT,
@@ -49,10 +50,10 @@ exports.init = () => {
 exports.createApplication = (data) => {
   return new Promise((resolve, reject) => {
     const sql = `
-      INSERT INTO applications (name, contact, category, otherCategoryText, description, datetime, price, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO applications (name, contact, address, category, otherCategoryText, description, datetime, price, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    db.run(sql, [data.name, data.contact, data.category, data.otherCategoryText, data.description, data.datetime, data.price, data.created_at], function(err) {
+    db.run(sql, [data.name, data.contact, data.address, data.category, data.otherCategoryText, data.description, data.datetime, data.price, data.created_at], function (err) {
       if (err) reject(err);
       else resolve(this.lastID);
     });
@@ -84,7 +85,7 @@ exports.updateApplication = (id, data) => {
       SET name=?, contact=?, category=?, description=?, datetime=?, price=?
       WHERE id=?
     `;
-    db.run(sql, [data.name, data.contact, data.category, data.description, data.datetime, data.price, id], function(err) {
+    db.run(sql, [data.name, data.contact, data.category, data.description, data.datetime, data.price, id], function (err) {
       if (err) reject(err);
       else resolve(this.changes);
     });
@@ -94,7 +95,7 @@ exports.updateApplication = (id, data) => {
 exports.deleteApplication = (id) => {
   return new Promise((resolve, reject) => {
     const sql = `DELETE FROM applications WHERE id = ?`;
-    db.run(sql, [id], function(err) {
+    db.run(sql, [id], function (err) {
       if (err) reject(err);
       else resolve(this.changes);
     });
@@ -114,7 +115,7 @@ exports.getUserByEmail = (email) => {
 exports.createUser = (data) => {
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [data.name, data.email, data.password, new Date().toISOString()], function(err) {
+    db.run(sql, [data.name, data.email, data.password, new Date().toISOString()], function (err) {
       if (err) reject(err);
       else resolve(this.lastID);
     });
@@ -125,7 +126,7 @@ exports.createUser = (data) => {
 exports.createSession = (userId, token) => {
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO sessions (user_id, token, created_at) VALUES (?, ?, ?)`;
-    db.run(sql, [userId, token, new Date().toISOString()], function(err) {
+    db.run(sql, [userId, token, new Date().toISOString()], function (err) {
       if (err) reject(err);
       else resolve(this.lastID);
     });

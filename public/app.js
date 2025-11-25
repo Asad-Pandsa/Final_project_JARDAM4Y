@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     vacanciesList.innerHTML = '';
     items.forEach(it => {
       const el = document.createElement('div'); el.className = 'vacancy card';
-      el.innerHTML = `<div class="meta"><strong>${escapeHtml(it.category || it.otherCategoryText || '—')}</strong><div>${escapeHtml(it.description || '')}</div><div class="muted">${escapeHtml(it.contact)}</div></div><div class="price">${escapeHtml(it.price||'')}</div>`;
+      el.innerHTML = `<div class="meta"><strong>${escapeHtml(it.category || it.otherCategoryText || '—')}</strong><div>${escapeHtml(it.description || '')}</div><div class="muted">${escapeHtml(it.contact)}</div></div><div class="price">${escapeHtml(it.price || '')}</div>`;
       el.addEventListener('click', () => showVacancy(it));
       vacanciesList.appendChild(el);
     });
@@ -61,11 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showVacancy(it) {
     if (!vacancyModal) return;
-    vacancyDetail.innerHTML = `<h3>${escapeHtml(it.category||it.otherCategoryText||'—')}</h3>
-      <p>${escapeHtml(it.description||'')}</p>
+    vacancyDetail.innerHTML = `<h3>${escapeHtml(it.category || it.otherCategoryText || '—')}</h3>
+      <p>${escapeHtml(it.description || '')}</p>
+      <p><b>Адрес:</b> ${escapeHtml(it.address || '—')}</p>
       <p><b>Контакт:</b> ${escapeHtml(it.contact)}</p>
-      <p><b>Дата/время:</b> ${escapeHtml(it.datetime||'—')}</p>
-      <p><b>Цена:</b> ${escapeHtml(it.price||'Договорная')}</p>`;
+      <p><b>Дата/время:</b> ${escapeHtml(it.datetime || '—')}</p>
+      <p><b>Цена:</b> ${escapeHtml(it.price || 'Договорная')}</p>`;
     vacancyModal.style.display = 'flex';
   }
 
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const rows = await res.json();
       document.getElementById('adminArea').style.display = 'block';
       const tbody = document.querySelector('#appsTable tbody'); tbody.innerHTML = '';
-      rows.forEach(r => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${r.id}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.contact)}</td><td>${escapeHtml(r.category||r.otherCategoryText)}</td><td>${escapeHtml(r.price||'')}</td><td>${escapeHtml(r.created_at)}</td>`; tbody.appendChild(tr); });
+      rows.forEach(r => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${r.id}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.contact)}</td><td>${escapeHtml(r.address || '—')}</td><td>${escapeHtml(r.category || r.otherCategoryText)}</td><td>${escapeHtml(r.price || '')}</td><td>${escapeHtml(r.created_at)}</td>`; tbody.appendChild(tr); });
       // store key for export
       exportBtn.dataset.key = key;
     } catch (err) { alert('Ошибка'); }
@@ -92,6 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function escapeHtml(s){ if (!s) return ''; return String(s).replace(/[&<>\"]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
-const ADMIN_KEY = process.env.ADMIN_KEY || '123';
+const ADMIN_KEY = process.env.ADMIN_KEY || '123123';

@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="ru">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>TokMaker — Создать заявку</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
   <header class="site-header">
     <h1>Создать заявку</h1>
@@ -14,6 +16,7 @@
     <form id="applicationForm" class="card">
       <label>Имя<br><input type="text" name="name" required></label>
       <label>Контакт (телефон / WhatsApp)<br><input type="text" name="contact" required></label>
+      <label>Адрес<br><input type="text" name="address" placeholder="г. Токмок, улица..." required></label>
 
       <label>Категория<br>
         <input type="text" id="categoryInput" name="category" readonly placeholder="Выберите категорию" required>
@@ -51,4 +54,5 @@
   </main>
   <script src="/app.js"></script>
 </body>
+
 </html>
