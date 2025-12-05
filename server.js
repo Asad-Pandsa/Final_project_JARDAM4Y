@@ -16,8 +16,36 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Create table if not exists
 db.init();
 
-// Public: create application (from employer)
-app.post('/api/applications', async (req, res) => {
+// Authentication middleware
+async function authenticateUser(req, res, next) {
+  const token = req.header('Authorization')?.replace('Bearer ', '') || req.header('x-auth-token');
+
+  if (!token) {
+    return res.status(401).json({ success: false, error: 'Требуется авторизация' });
+  }
+
+  try {
+    const session = await db.getSessionByToken(token);
+    if (!session) {
+      return res.status(401).json({ success: false, error: 'Недействительный токен' });
+    }
+
+    const user = await db.getUserById(session.user_id);
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Пользователь не найден' });
+    }
+
+    req.user = user;
+    req.userId = user.id;
+    next();
+  } catch (err) {
+    console.error('Auth error:', err);
+    res.status(500).json({ success: false, error: 'Ошибка авторизации' });
+  }
+}
+
+// Create application (requires authentication)
+app.post('/api/applications', authenticateUser, async (req, res) => {
   try {
     const data = req.body;
     const id = await db.createApplication({
@@ -29,13 +57,24 @@ app.post('/api/applications', async (req, res) => {
       description: data.description || '',
       datetime: data.datetime || '',
       price: data.price || '',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      user_id: req.userId
     });
-    console.log('New application created:', id, data);
+    console.log('New application created:', id, 'by user:', req.userId);
     res.json({ success: true, id });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get current user's applications (authenticated)
+app.get('/api/applications/my', authenticateUser, async (req, res) => {
+  try {
+    const rows = await db.getApplicationsByUserId(req.userId);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -89,9 +128,18 @@ app.get('/api/admin/export', async (req, res) => {
   }
 });
 
-// Public: update application
-app.put('/api/applications/:id', async (req, res) => {
+// Update application (requires authentication and ownership)
+app.put('/api/applications/:id', authenticateUser, async (req, res) => {
   try {
+    // Check ownership
+    const existing = await db.getApplicationById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Заявка не найдена' });
+    }
+    if (existing.user_id !== req.userId) {
+      return res.status(403).json({ success: false, error: 'У вас нет прав для редактирования этой заявки' });
+    }
+
     const data = req.body;
     const changes = await db.updateApplication(req.params.id, {
       name: data.name || '',
@@ -104,7 +152,7 @@ app.put('/api/applications/:id', async (req, res) => {
     if (changes === 0) {
       return res.status(404).json({ success: false, error: 'Application not found' });
     }
-    console.log('Application updated:', req.params.id);
+    console.log('Application updated:', req.params.id, 'by user:', req.userId);
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -112,10 +160,20 @@ app.put('/api/applications/:id', async (req, res) => {
   }
 });
 
-// Public: delete application
-app.delete('/api/applications/:id', async (req, res) => {
+// Delete application (requires authentication and ownership)
+app.delete('/api/applications/:id', authenticateUser, async (req, res) => {
   try {
-    console.log('DELETE request received for ID:', req.params.id);
+    console.log('DELETE request received for ID:', req.params.id, 'by user:', req.userId);
+
+    // Check ownership
+    const existing = await db.getApplicationById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Заявка не найдена' });
+    }
+    if (existing.user_id !== req.userId) {
+      return res.status(403).json({ success: false, error: 'У вас нет прав для удаления этой заявки' });
+    }
+
     const changes = await db.deleteApplication(req.params.id);
     if (changes === 0) {
       return res.status(404).json({ success: false, error: 'Application not found' });

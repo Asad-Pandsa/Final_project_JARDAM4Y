@@ -1,25 +1,39 @@
 <!doctype html>
 <html lang="ru">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TokMaker — Вакансии</title>
+  <title>JARDAM4Y — Вакансии</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
   <header class="site-header">
-    <h1>Список вакансий</h1>
+    <div class="header-container">
+      <h1>Список вакансий</h1>
+      <button onclick="location.href='/'" class="icon-btn" title="На главную" style="margin-left: auto;">
+        <i class="fas fa-home"></i>
+      </button>
+    </div>
   </header>
   <main class="container">
     <div id="vacanciesList"></div>
 
-    <div id="vacancyModal" class="modal" style="display:none;">
+    <div id="vacancyModal" class="modal">
       <div class="modal-content">
-        <button id="closeVacancy" class="btn muted">Закрыть</button>
-        <div id="vacancyDetail"></div>
+        <button id="closeVacancy" class="modal-close">&times;</button>
+        <div id="vacancyDetail" class="modal-detail"></div>
+        <div class="actions">
+          <button class="btn primary"
+            onclick="document.getElementById('vacancyModal').style.display='none'">Закрыть</button>
+        </div>
       </div>
     </div>
+
   </main>
   <script src="/app.js"></script>
 </body>
+
 </html>

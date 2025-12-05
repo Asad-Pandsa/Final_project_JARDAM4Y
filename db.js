@@ -19,9 +19,42 @@ exports.init = () => {
       description TEXT,
       datetime TEXT,
       price TEXT,
-      created_at TEXT
+      created_at TEXT,
+      user_id INTEGER,
+      FOREIGN KEY(user_id) REFERENCES users(id)
     )
   `);
+
+  // Migration: Add missing columns if they don't exist
+  db.all(`PRAGMA table_info(applications)`, (err, columns) => {
+    if (!err && columns) {
+      const columnNames = columns.map(col => col.name);
+
+      // Check and add 'address' column
+      if (!columnNames.includes('address')) {
+        db.run(`ALTER TABLE applications ADD COLUMN address TEXT`, (err) => {
+          if (!err) console.log('✅ Migration: Added address column');
+          else console.error('❌ Migration error (address):', err);
+        });
+      }
+
+      // Check and add 'user_id' column
+      if (!columnNames.includes('user_id')) {
+        db.run(`ALTER TABLE applications ADD COLUMN user_id INTEGER`, (err) => {
+          if (!err) console.log('✅ Migration: Added user_id column');
+          else console.error('❌ Migration error (user_id):', err);
+        });
+      }
+
+      // Check and add 'otherCategoryText' column
+      if (!columnNames.includes('otherCategoryText')) {
+        db.run(`ALTER TABLE applications ADD COLUMN otherCategoryText TEXT`, (err) => {
+          if (!err) console.log('✅ Migration: Added otherCategoryText column');
+          else console.error('❌ Migration error (otherCategoryText):', err);
+        });
+      }
+    }
+  });
 
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -50,10 +83,10 @@ exports.init = () => {
 exports.createApplication = (data) => {
   return new Promise((resolve, reject) => {
     const sql = `
-      INSERT INTO applications (name, contact, address, category, otherCategoryText, description, datetime, price, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO applications (name, contact, address, category, otherCategoryText, description, datetime, price, created_at, user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    db.run(sql, [data.name, data.contact, data.address, data.category, data.otherCategoryText, data.description, data.datetime, data.price, data.created_at], function (err) {
+    db.run(sql, [data.name, data.contact, data.address, data.category, data.otherCategoryText, data.description, data.datetime, data.price, data.created_at, data.user_id], function (err) {
       if (err) reject(err);
       else resolve(this.lastID);
     });
@@ -102,10 +135,28 @@ exports.deleteApplication = (id) => {
   });
 };
 
+exports.getApplicationsByUserId = (userId) => {
+  return new Promise((resolve, reject) => {
+    db.all(`SELECT * FROM applications WHERE user_id = ? ORDER BY created_at DESC`, [userId], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows || []);
+    });
+  });
+};
+
 // ========== USERS ==========
 exports.getUserByEmail = (email) => {
   return new Promise((resolve, reject) => {
     db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+};
+
+exports.getUserById = (id) => {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT * FROM users WHERE id = ?`, [id], (err, row) => {
       if (err) reject(err);
       else resolve(row);
     });

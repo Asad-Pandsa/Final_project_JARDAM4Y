@@ -18,6 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
       otherContainer.style.display = txt === 'Другие услуги' ? 'block' : 'none';
     }));
 
+    // Check for auth
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Для создания заявки необходимо войти в систему');
+      location.href = '/auth.html';
+      return;
+    }
+
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
@@ -27,12 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       try {
-        const res = await fetch('/api/applications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        const res = await fetch('/api/applications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': token
+          },
+          body: JSON.stringify(data)
+        });
         const json = await res.json();
         if (json.success) {
           location.href = '/?sent=1';
         } else {
-          alert('Ошибка при отправке');
+          if (res.status === 401) {
+            alert('Ошибка авторизации. Пожалуйста, войдите снова.');
+            location.href = '/auth.html';
+          } else {
+            alert('Ошибка при отправке: ' + (json.error || 'Неизвестная ошибка'));
+          }
         }
       } catch (err) { alert('Ошибка сети'); }
     });
@@ -96,3 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
 const ADMIN_KEY = process.env.ADMIN_KEY || '123123';
+
+
+
+
+
